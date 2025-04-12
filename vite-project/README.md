@@ -310,16 +310,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- The project uses Tailwind CSS for styling
-- Heroicons for beautiful, consistent icons
-- Supabase for backend functionality and real-time features
-- Firebase for real-time database capabilities
-- Headless UI for accessible component primitives 
+5. Open a Pull Request./
