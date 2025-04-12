@@ -1,8 +1,12 @@
 # Anti-Resume Platform
 
-![Anti-Resume Platform](https://via.placeholder.com/1200x400?text=Anti-Resume+Platform)
+![Anti-Resume Platform](https://melodious-ganache-60323d.netlify.app/)
 
 A modern platform that transforms tech hiring through skill verification rather than traditional resumes. This application connects developers with companies based on their actual coding abilities instead of just their work history.
+
+Deployment url:https://melodious-ganache-60323d.netlify.app/
+
+Git hub link:https://github.com/narasimhaDln/Resume-platform/tree/main/vite-project
 
 ## 📋 Table of Contents
 
