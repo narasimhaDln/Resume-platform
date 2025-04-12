@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import {
   UserCircleIcon,
   TrophyIcon,
@@ -12,85 +13,244 @@ import {
   PaperClipIcon,
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarSolidIcon } from "@heroicons/react/24/solid";
+import SkillBasedMatching from "../components/SkillBasedMatching";
+import ProfileForm from "../components/ProfileForm";
 
 function Profile() {
+  const { action } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [mounted, setMounted] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
+  const [userData, setUserData] = useState({
+    name: "",
+    title: "",
+    bio: "",
+    rating: 0,
+    percentile: "",
+    challengesCompleted: 0,
+    email: "",
+    location: "",
+    website: "",
+    github: "",
+    linkedin: "",
+    education: [],
+    experience: []
+  });
+  const [skills, setSkills] = useState([]);
+  const [completedChallenges, setCompletedChallenges] = useState([]);
+  const [jobApplications, setJobApplications] = useState([]);
+  const [achievements, setAchievements] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalChallenges: 0,
+    avgScore: 0,
+    totalApplications: 0,
+    totalAchievements: 0
+  });
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    
+    // Check if we're in create mode (coming from the "Create Profile" link)
+    if (action === "create" || location.pathname.includes("/create")) {
+      setIsCreating(true);
+      setLoading(false);
+    } else {
+      // Regular profile - check if data exists in localStorage
+      const savedProfileData = localStorage.getItem('profileData');
+      
+      if (savedProfileData) {
+        // Profile already exists - load it
+        setProfileSaved(true);
+        
+        // Simulate data loading with a small delay for real-time feel
+        const loadTimer = setTimeout(() => {
+          loadUserData(JSON.parse(savedProfileData));
+        }, 800);
+        
+        return () => clearTimeout(loadTimer);
+      } else {
+        // No profile exists yet, switch to creation mode
+        setIsCreating(true);
+        setLoading(false);
+      }
+    }
+  }, [action, location]);
 
-  const skills = [
-    { name: "JavaScript", level: "Advanced", icon: "💻", proficiency: 90 },
-    { name: "React", level: "Intermediate", icon: "⚛️", proficiency: 75 },
-    { name: "Node.js", level: "Intermediate", icon: "🖥️", proficiency: 70 },
-    { name: "SQL", level: "Basic", icon: "🗄️", proficiency: 50 },
-    { name: "TypeScript", level: "Intermediate", icon: "📘", proficiency: 65 },
-    { name: "UI/UX Design", level: "Basic", icon: "🎨", proficiency: 45 },
-  ];
-
-  const completedChallenges = [
-    {
-      id: 1,
-      title: "Frontend Development Challenge",
-      score: 95,
-      date: "2024-02-10",
-      type: "Frontend",
-      company: "TechCorp",
-    },
-    {
-      id: 2,
-      title: "Algorithm Challenge",
-      score: 88,
-      date: "2024-02-08",
-      type: "Algorithms",
-      company: "AlgoTech",
-    },
-    {
-      id: 3,
-      title: "React Components Challenge",
-      score: 92,
-      date: "2024-01-25",
-      type: "Frontend",
-      company: "DesignHub",
-    },
-  ];
-
-  const jobApplications = [
-    {
-      id: 1,
-      position: "Senior Frontend Developer",
-      company: "TechCorp",
-      status: "Interview",
-      appliedDate: "2024-02-05",
-    },
-    {
-      id: 2,
-      position: "Full Stack Developer",
-      company: "CloudNine",
-      status: "Applied",
-      appliedDate: "2024-02-12",
-    },
-  ];
-
-  const achievements = [
-    {
-      id: 1,
-      title: "Algorithm Master",
-      description:
-        "Completed 10 algorithm challenges with a score of 85% or higher",
-      icon: "🏆",
-      date: "2024-02-01",
-    },
-    {
-      id: 2,
-      title: "React Specialist",
-      description: "Achieved top 10% in React frontend challenges",
-      icon: "⚛️",
-      date: "2024-01-15",
-    },
-  ];
+  // Load data with real-time calculations (front-end only)
+  const loadUserData = (savedData) => {
+    setLoading(true);
+    
+    if (savedData) {
+      // Use saved profile data
+      setUserData({
+        name: savedData.name || "John Doe",
+        title: savedData.title || "Full Stack Developer",
+        bio: savedData.bio || "Passionate developer with 3+ years of experience building web applications. Specializing in frontend technologies and UI/UX design.",
+        rating: 4.8,
+        percentile: "Top 10%",
+        challengesCompleted: 8,
+        email: savedData.email || "john.doe@example.com",
+        location: savedData.location || "San Francisco, CA",
+        website: savedData.website || "",
+        github: savedData.github || "",
+        linkedin: savedData.linkedin || "",
+        education: savedData.education || [],
+        experience: savedData.experience || []
+      });
+    } else {
+      // Generate a demo profile if no data
+      setUserData({
+        name: "John Doe",
+        title: "Full Stack Developer",
+        bio: "Passionate developer with 3+ years of experience building web applications. Specializing in frontend technologies and UI/UX design.",
+        rating: 4.8,
+        percentile: "Top 10%",
+        challengesCompleted: 8,
+        email: "john.doe@example.com",
+        location: "San Francisco, CA",
+        website: "",
+        github: "",
+        linkedin: "",
+        education: [],
+        experience: []
+      });
+    }
+    
+    // Skills with dynamic proficiency that could be updated in real-time
+    const userSkills = [
+      { name: "JavaScript", level: "Advanced", icon: "💻", proficiency: 90 },
+      { name: "React", level: "Intermediate", icon: "⚛️", proficiency: 75 },
+      { name: "Node.js", level: "Intermediate", icon: "🖥️", proficiency: 70 },
+      { name: "SQL", level: "Basic", icon: "🗄️", proficiency: 50 },
+      { name: "TypeScript", level: "Intermediate", icon: "📘", proficiency: 65 },
+      { name: "UI/UX Design", level: "Basic", icon: "🎨", proficiency: 45 },
+    ];
+    setSkills(userSkills);
+    
+    // Challenges with real-time dates
+    const challenges = [
+      {
+        id: 1,
+        title: "Frontend Development Challenge",
+        score: 95,
+        date: new Date().toISOString().split('T')[0],
+        type: "Frontend",
+        company: "TechCorp",
+      },
+      {
+        id: 2,
+        title: "Algorithm Challenge",
+        score: 88,
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        type: "Algorithms",
+        company: "AlgoTech",
+      },
+      {
+        id: 3,
+        title: "React Components Challenge",
+        score: 92,
+        date: new Date(Date.now() - 16 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        type: "Frontend",
+        company: "DesignHub",
+      },
+    ];
+    setCompletedChallenges(challenges);
+    
+    // Job applications with real-time dates
+    const applications = [
+      {
+        id: 1,
+        position: "Senior Frontend Developer",
+        company: "TechCorp",
+        status: "Interview",
+        appliedDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      },
+      {
+        id: 2,
+        position: "Full Stack Developer",
+        company: "CloudNine",
+        status: "Applied",
+        appliedDate: new Date().toISOString().split('T')[0],
+      },
+    ];
+    setJobApplications(applications);
+    
+    // Achievements with real-time dates
+    const userAchievements = [
+      {
+        id: 1,
+        title: "Algorithm Master",
+        description: "Completed 10 algorithm challenges with a score of 85% or higher",
+        icon: "🏆",
+        date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      },
+      {
+        id: 2,
+        title: "React Specialist",
+        description: "Achieved top 10% in React frontend challenges",
+        icon: "⚛️",
+        date: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      },
+    ];
+    setAchievements(userAchievements);
+    
+    // Calculate real-time stats
+    const avgScore = challenges.reduce((sum, challenge) => sum + challenge.score, 0) / challenges.length;
+    setStats({
+      totalChallenges: challenges.length,
+      avgScore: Math.round(avgScore),
+      totalApplications: applications.length,
+      totalAchievements: userAchievements.length
+    });
+    
+    setLoading(false);
+  };
+  
+  // Handle saving profile data
+  const handleSaveProfile = (profileData) => {
+    // Save profile data to localStorage
+    localStorage.setItem('profileData', JSON.stringify(profileData));
+    
+    // Update state
+    setUserData(prevData => ({
+      ...prevData,
+      ...profileData
+    }));
+    
+    // Show success notification (could be implemented)
+    setProfileSaved(true);
+    setIsCreating(false);
+    setIsEditing(false);
+    
+    // Redirect to profile view
+    navigate('/profile');
+  };
+  
+  // Handle editing profile
+  const handleEditProfile = () => {
+    setIsEditing(true);
+  };
+  
+  // Function to add a new skill (simulating real-time updates)
+  const addNewSkill = (newSkill) => {
+    setSkills(prevSkills => [...prevSkills, newSkill]);
+  };
+  
+  // Function to update skill proficiency (simulating real-time updates)
+  const updateSkillProficiency = (skillName, newProficiency) => {
+    setSkills(prevSkills => 
+      prevSkills.map(skill => 
+        skill.name === skillName 
+          ? {...skill, proficiency: newProficiency} 
+          : skill
+      )
+    );
+  };
 
   const getScoreColor = (score) => {
     if (score >= 90) return "text-green-600";
@@ -110,6 +270,42 @@ function Profile() {
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  // Show profile form if we're creating or editing
+  if (isCreating || isEditing) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className={`transition-all duration-500 ${
+            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+          }`}>
+            <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+              <div className="px-6 py-8">
+                <h1 className="text-2xl font-bold text-gray-900 mb-8">
+                  {isCreating ? "Create Your Profile" : "Edit Your Profile"}
+                </h1>
+                
+                <ProfileForm 
+                  initialData={isEditing ? userData : null}
+                  onSave={handleSaveProfile}
+                  onCancel={() => {
+                    if (profileSaved) {
+                      // If profile exists, go back to view mode
+                      setIsEditing(false);
+                    } else {
+                      // If no profile exists yet, stay in create mode
+                      // This could redirect elsewhere if needed
+                      navigate('/');
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
@@ -140,25 +336,25 @@ function Profile() {
 
               <div className="md:ml-8 mt-6 md:mt-0">
                 <div className="flex flex-col md:flex-row md:items-center gap-y-2 md:gap-x-4">
-                  <h1 className="text-3xl font-bold text-white">John Doe</h1>
+                  <h1 className="text-3xl font-bold text-white">
+                    {loading ? "Loading..." : userData.name}
+                  </h1>
                   <div className="flex items-center">
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-900/30 text-white">
-                      Full Stack Developer
+                      {loading ? "Loading..." : userData.title}
                     </span>
                   </div>
                 </div>
 
                 <p className="text-indigo-100 mt-2 max-w-xl">
-                  Passionate developer with 3+ years of experience building web
-                  applications. Specializing in frontend technologies and UI/UX
-                  design.
+                  {loading ? "Loading bio..." : userData.bio}
                 </p>
 
                 <div className="flex items-center space-x-6 mt-4">
                   <div className="flex items-center">
                     <div className="flex">
                       {[...Array(5)].map((_, i) =>
-                        i < 4 ? (
+                        i < Math.floor(userData.rating) ? (
                           <StarSolidIcon
                             key={i}
                             className="h-5 w-5 text-yellow-400"
@@ -171,23 +367,25 @@ function Profile() {
                         )
                       )}
                     </div>
-                    <span className="ml-1.5 text-white">4.8/5.0</span>
+                    <span className="ml-1.5 text-white">
+                      {loading ? "..." : `${userData.rating}/5.0`}
+                    </span>
                   </div>
 
                   <div className="flex items-center">
-                    <TrophyIcon className="h-5 w-5 text-yellow-400" />
-                    <span className="ml-1.5 text-white">Top 10%</span>
-                  </div>
-
-                  <div className="flex items-center">
-                    <BriefcaseIcon className="h-5 w-5 text-green-400" />
-                    <span className="ml-1.5 text-white">8 Challenges</span>
+                    <TrophyIcon className="h-5 w-5 text-yellow-400 mr-1.5" />
+                    <span className="text-white">
+                      {loading ? "..." : userData.percentile}
+                    </span>
                   </div>
                 </div>
               </div>
 
               <div className="mt-6 md:mt-0 md:ml-auto flex">
-                <button className="px-4 py-2 bg-white text-indigo-600 rounded-md hover:bg-indigo-50 transition-colors font-medium flex items-center">
+                <button 
+                  onClick={handleEditProfile}
+                  className="px-4 py-2 bg-white text-indigo-600 rounded-md hover:bg-indigo-50 transition-colors font-medium flex items-center"
+                >
                   <PencilIcon className="h-5 w-5 mr-1.5" />
                   Edit Profile
                 </button>
@@ -241,6 +439,16 @@ function Profile() {
               >
                 Applications
               </button>
+              <button
+                onClick={() => setActiveTab("achievements")}
+                className={`py-4 px-6 font-medium text-sm border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === "achievements"
+                    ? "border-indigo-600 text-indigo-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                Achievements
+              </button>
             </nav>
           </div>
 
@@ -249,178 +457,231 @@ function Profile() {
             {/* Overview Tab */}
             {activeTab === "overview" && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
-                  {/* Skills Summary */}
-                  <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center">
-                        <AcademicCapIcon className="h-6 w-6 text-indigo-600 mr-2" />
-                        <h2 className="text-xl font-bold text-gray-900">
-                          Top Skills
-                        </h2>
-                      </div>
-                      <button
-                        className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
-                        onClick={() => setActiveTab("skills")}
-                      >
-                        View All
-                      </button>
-                    </div>
-
-                    <div className="space-y-4">
-                      {skills.slice(0, 3).map((skill, index) => (
-                        <div key={index} className="space-y-2">
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <span className="text-lg mr-2">{skill.icon}</span>
-                              <span className="font-medium text-gray-900">
-                                {skill.name}
-                              </span>
+                {loading ? (
+                  // Loading state
+                  <>
+                    <div className="lg:col-span-2 space-y-6">
+                      <div className="animate-pulse bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                        <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
+                        <div className="space-y-4">
+                          {[1, 2, 3].map((i) => (
+                            <div key={i} className="space-y-2">
+                              <div className="flex justify-between items-center">
+                                <div className="h-5 bg-gray-200 rounded w-1/3"></div>
+                                <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                              </div>
+                              <div className="h-2 bg-gray-200 rounded w-full"></div>
                             </div>
-                            <span className="text-sm text-gray-600">
-                              {skill.level}
-                            </span>
-                          </div>
-                          <div className="relative h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                              className="absolute h-full bg-indigo-600 rounded-full"
-                              style={{ width: `${skill.proficiency}%` }}
-                            ></div>
-                          </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Recent Challenges */}
-                  <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center">
-                        <TrophyIcon className="h-6 w-6 text-indigo-600 mr-2" />
-                        <h2 className="text-xl font-bold text-gray-900">
-                          Recent Challenges
-                        </h2>
                       </div>
-                      <button
-                        className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
-                        onClick={() => setActiveTab("challenges")}
-                      >
-                        View All
-                      </button>
+                      <div className="animate-pulse bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                        <div className="h-6 bg-gray-200 rounded w-1/3 mb-6"></div>
+                        <div className="space-y-4">
+                          {[1, 2].map((i) => (
+                            <div key={i} className="h-24 bg-gray-100 rounded-xl w-full"></div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-
-                    <div className="space-y-4">
-                      {completedChallenges.slice(0, 2).map((challenge) => (
-                        <div
-                          key={challenge.id}
-                          className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200"
-                        >
-                          <div className="mb-3 sm:mb-0">
-                            <div className="flex items-center">
-                              <span className="text-lg mr-2">
-                                {challenge.type === "Frontend"
-                                  ? "💻"
-                                  : challenge.type === "Algorithms"
-                                  ? "🧮"
-                                  : "📱"}
-                              </span>
-                              <h3 className="font-medium text-gray-900">
-                                {challenge.title}
-                              </h3>
-                            </div>
-                            <div className="flex items-center mt-1">
-                              <span className="text-sm text-gray-500">
-                                {challenge.date}
-                              </span>
-                              <span className="mx-2 text-gray-300">•</span>
-                              <span className="text-sm text-indigo-600">
-                                {challenge.company}
-                              </span>
-                            </div>
+                    <div className="space-y-6">
+                      <div className="animate-pulse bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                        <div className="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
+                        <div className="grid grid-cols-2 gap-4">
+                          {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="h-16 bg-gray-100 rounded-lg"></div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="animate-pulse bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                        <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+                        <div className="space-y-4">
+                          {[1, 2].map((i) => (
+                            <div key={i} className="h-16 bg-gray-100 rounded-lg"></div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  // Actual content
+                  <>
+                    <div className="lg:col-span-2 space-y-6">
+                      {/* Skills Summary */}
+                      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center">
+                            <AcademicCapIcon className="h-6 w-6 text-indigo-600 mr-2" />
+                            <h2 className="text-xl font-bold text-gray-900">
+                              Top Skills
+                            </h2>
                           </div>
-                          <div
-                            className={`text-lg font-semibold ${getScoreColor(
-                              challenge.score
-                            )}`}
+                          <button
+                            className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                            onClick={() => setActiveTab("skills")}
                           >
-                            {challenge.score}%
+                            View All
+                          </button>
+                        </div>
+
+                        <div className="space-y-4">
+                          {skills.slice(0, 3).map((skill, index) => (
+                            <div key={index} className="space-y-2">
+                              <div className="flex justify-between items-center">
+                                <div className="flex items-center">
+                                  <span className="text-lg mr-2">{skill.icon}</span>
+                                  <span className="font-medium text-gray-900">
+                                    {skill.name}
+                                  </span>
+                                </div>
+                                <span className="text-sm text-gray-600">
+                                  {skill.level}
+                                </span>
+                              </div>
+                              <div className="relative h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                                  className="absolute h-full bg-indigo-600 rounded-full"
+                                  style={{ width: `${skill.proficiency}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Recent Challenges */}
+                      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center">
+                            <TrophyIcon className="h-6 w-6 text-indigo-600 mr-2" />
+                            <h2 className="text-xl font-bold text-gray-900">
+                              Recent Challenges
+                            </h2>
+                          </div>
+                          <button
+                            className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                            onClick={() => setActiveTab("challenges")}
+                          >
+                            View All
+                          </button>
+                        </div>
+
+                        <div className="space-y-4">
+                          {completedChallenges.slice(0, 2).map((challenge) => (
+                            <div
+                              key={challenge.id}
+                              className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200"
+                            >
+                              <div className="mb-3 sm:mb-0">
+                                <div className="flex items-center">
+                                  <span className="text-lg mr-2">
+                                    {challenge.type === "Frontend"
+                                      ? "💻"
+                                      : challenge.type === "Algorithms"
+                                      ? "🧮"
+                                      : challenge.type === "Backend"
+                                      ? "🖧"
+                                      : "📱"}
+                                  </span>
+                                  <h3 className="font-medium text-gray-900">
+                                    {challenge.title}
+                                  </h3>
+                                </div>
+                                <div className="flex items-center mt-1">
+                                  <span className="text-sm text-gray-500">
+                                    {challenge.date}
+                                  </span>
+                                  <span className="mx-2 text-gray-300">•</span>
+                                  <span className="text-sm text-indigo-600">
+                                    {challenge.company}
+                                  </span>
+                                </div>
+                              </div>
+                              <div
+                                className={`text-lg font-semibold ${getScoreColor(
+                                  challenge.score
+                                )}`}
+                              >
+                                {challenge.score}%
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-6">
+                      {/* Stats Card */}
+                      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4">
+                          Stats
+                        </h2>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-indigo-50 p-4 rounded-lg">
+                            <div className="text-2xl font-bold text-indigo-600">
+                              {stats.totalChallenges}
+                            </div>
+                            <div className="text-sm text-gray-600">Challenges</div>
+                          </div>
+                          <div className="bg-green-50 p-4 rounded-lg">
+                            <div className="text-2xl font-bold text-green-600">
+                              {stats.avgScore}%
+                            </div>
+                            <div className="text-sm text-gray-600">Avg. Score</div>
+                          </div>
+                          <div className="bg-purple-50 p-4 rounded-lg">
+                            <div className="text-2xl font-bold text-purple-600">
+                              {stats.totalApplications}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              Applications
+                            </div>
+                          </div>
+                          <div className="bg-yellow-50 p-4 rounded-lg">
+                            <div className="text-2xl font-bold text-yellow-600">
+                              {stats.totalAchievements}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              Achievements
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                      </div>
 
-                <div className="space-y-6">
-                  {/* Stats Card */}
-                  <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">
-                      Stats
-                    </h2>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-indigo-50 p-4 rounded-lg">
-                        <div className="text-2xl font-bold text-indigo-600">
-                          8
-                        </div>
-                        <div className="text-sm text-gray-600">Challenges</div>
-                      </div>
-                      <div className="bg-green-50 p-4 rounded-lg">
-                        <div className="text-2xl font-bold text-green-600">
-                          91%
-                        </div>
-                        <div className="text-sm text-gray-600">Avg. Score</div>
-                      </div>
-                      <div className="bg-purple-50 p-4 rounded-lg">
-                        <div className="text-2xl font-bold text-purple-600">
-                          2
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          Applications
-                        </div>
-                      </div>
-                      <div className="bg-yellow-50 p-4 rounded-lg">
-                        <div className="text-2xl font-bold text-yellow-600">
-                          3
-                        </div>
-                        <div className="text-sm text-gray-600">
+                      {/* Achievements */}
+                      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4">
                           Achievements
+                        </h2>
+
+                        <div className="space-y-4">
+                          {achievements.map((achievement) => (
+                            <div
+                              key={achievement.id}
+                              className="flex items-start p-3 bg-gray-50 rounded-lg"
+                            >
+                              <div className="flex-shrink-0 w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-2xl">
+                                {achievement.icon}
+                              </div>
+                              <div className="ml-3">
+                                <h3 className="font-medium text-gray-900">
+                                  {achievement.title}
+                                </h3>
+                                <p className="text-sm text-gray-600">
+                                  {achievement.description}
+                                </p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  {achievement.date}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Achievements */}
-                  <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">
-                      Achievements
-                    </h2>
-
-                    <div className="space-y-4">
-                      {achievements.map((achievement) => (
-                        <div
-                          key={achievement.id}
-                          className="flex items-start p-3 bg-gray-50 rounded-lg"
-                        >
-                          <div className="flex-shrink-0 w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-2xl">
-                            {achievement.icon}
-                          </div>
-                          <div className="ml-3">
-                            <h3 className="font-medium text-gray-900">
-                              {achievement.title}
-                            </h3>
-                            <p className="text-sm text-gray-600">
-                              {achievement.description}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {achievement.date}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                  </>
+                )}
               </div>
             )}
 
@@ -464,8 +725,26 @@ function Profile() {
                               }}
                             ></div>
                           </div>
+                          <button 
+                            onClick={() => updateSkillProficiency(skill.name, Math.min(100, skill.proficiency + 5))}
+                            className="text-xs text-indigo-600 hover:text-indigo-800 mt-1"
+                          >
+                            Update proficiency
+                          </button>
                         </div>
                       ))}
+                      
+                      <button 
+                        onClick={() => addNewSkill({
+                          name: "GraphQL", 
+                          level: "Basic", 
+                          icon: "🔄", 
+                          proficiency: 35
+                        })}
+                        className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm"
+                      >
+                        Add New Skill
+                      </button>
                     </div>
                   </div>
 
@@ -507,8 +786,16 @@ function Profile() {
                           </div>
                         </div>
                       </div>
+                      
+                      {/* Real-time skill matching component */}
+                      <div className="mt-8">
+                        <h4 className="text-sm font-medium uppercase text-gray-500 tracking-wider mb-4">
+                          Job Skill Matching
+                        </h4>
+                        <SkillBasedMatching userSkills={skills} />
+                      </div>
 
-                      <div>
+                      <div className="mt-8">
                         <h4 className="text-sm font-medium uppercase text-gray-500 tracking-wider mb-2">
                           Recommended Skill Paths
                         </h4>
@@ -553,8 +840,31 @@ function Profile() {
                       Challenge History
                     </h2>
                   </div>
-                  <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors font-medium flex items-center">
-                    Find Challenges
+                  <button 
+                    onClick={() => {
+                      const newChallenge = {
+                        id: completedChallenges.length + 1,
+                        title: "New API Challenge",
+                        score: Math.floor(Math.random() * 15) + 85, // Random score between 85-100
+                        date: new Date().toISOString().split('T')[0],
+                        type: "Backend",
+                        company: "APITech"
+                      };
+                      setCompletedChallenges(prev => [newChallenge, ...prev]);
+                      
+                      // Update stats
+                      const newAvgScore = [...completedChallenges, newChallenge].reduce((sum, challenge) => 
+                        sum + challenge.score, 0) / (completedChallenges.length + 1);
+                      
+                      setStats(prev => ({
+                        ...prev,
+                        totalChallenges: prev.totalChallenges + 1,
+                        avgScore: Math.round(newAvgScore)
+                      }));
+                    }}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors font-medium flex items-center"
+                  >
+                    Add Challenge
                     <ArrowRightIcon className="ml-1.5 h-4 w-4" />
                   </button>
                 </div>
@@ -570,63 +880,71 @@ function Profile() {
                     <p className="text-sm text-gray-600">
                       Your average score is{" "}
                       <span className="font-semibold text-indigo-600">
-                        91.7%
+                        {loading ? "loading..." : `${stats.avgScore}%`}
                       </span>
                       , which is higher than 85% of users
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-6">
-                  {completedChallenges.map((challenge) => (
-                    <div
-                      key={challenge.id}
-                      className="flex flex-col md:flex-row md:items-center justify-between p-5 bg-white rounded-xl border border-gray-200 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1"
-                    >
-                      <div className="mb-4 md:mb-0">
-                        <div className="flex items-center">
-                          <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-3 text-lg">
-                            {challenge.type === "Frontend"
-                              ? "💻"
-                              : challenge.type === "Algorithms"
-                              ? "🧮"
-                              : "📱"}
-                          </div>
-                          <div>
-                            <h3 className="font-medium text-gray-900">
-                              {challenge.title}
-                            </h3>
-                            <div className="flex items-center mt-1">
-                              <span className="text-sm text-gray-500">
-                                Completed on {challenge.date}
-                              </span>
-                              <span className="mx-2 text-gray-300">•</span>
-                              <span className="text-sm text-indigo-600">
-                                {challenge.type}
-                              </span>
-                              <span className="mx-2 text-gray-300">•</span>
-                              <span className="text-sm text-gray-600">
-                                By {challenge.company}
-                              </span>
+                {loading ? (
+                  <div className="text-center py-20">
+                    <div className="animate-pulse text-indigo-600">Loading challenges...</div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {completedChallenges.map((challenge) => (
+                      <div
+                        key={challenge.id}
+                        className="flex flex-col md:flex-row md:items-center justify-between p-5 bg-white rounded-xl border border-gray-200 hover:shadow-md transition-all duration-200 transform hover:-translate-y-1"
+                      >
+                        <div className="mb-4 md:mb-0">
+                          <div className="flex items-center">
+                            <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mr-3 text-lg">
+                              {challenge.type === "Frontend"
+                                ? "💻"
+                                : challenge.type === "Algorithms"
+                                ? "🧮"
+                                : challenge.type === "Backend"
+                                ? "🖧"
+                                : "📱"}
+                            </div>
+                            <div>
+                              <h3 className="font-medium text-gray-900">
+                                {challenge.title}
+                              </h3>
+                              <div className="flex items-center mt-1">
+                                <span className="text-sm text-gray-500">
+                                  Completed on {challenge.date}
+                                </span>
+                                <span className="mx-2 text-gray-300">•</span>
+                                <span className="text-sm text-indigo-600">
+                                  {challenge.type}
+                                </span>
+                                <span className="mx-2 text-gray-300">•</span>
+                                <span className="text-sm text-gray-600">
+                                  By {challenge.company}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-6">
-                        <div
-                          className={`text-lg font-semibold ${getScoreColor(
-                            challenge.score
-                          )}`}
-                        >
-                          Score: {challenge.score}%
+                        <div className="flex items-center gap-6">
+                          <div
+                            className={`text-lg font-semibold ${getScoreColor(
+                              challenge.score
+                            )}`}
+                          >
+                            Score: {challenge.score}%
+                          </div>
+                          <button className="p-2 text-gray-400 hover:text-indigo-600 transition-colors rounded-full hover:bg-gray-100">
+                            <PaperClipIcon className="h-5 w-5" />
+                          </button>
                         </div>
-                        <button className="p-2 text-gray-400 hover:text-indigo-600 transition-colors rounded-full hover:bg-gray-100">
-                          <PaperClipIcon className="h-5 w-5" />
-                        </button>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -640,13 +958,35 @@ function Profile() {
                       Job Applications
                     </h2>
                   </div>
-                  <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors font-medium flex items-center">
-                    Browse Jobs
+                  <button 
+                    onClick={() => {
+                      const newApplication = {
+                        id: jobApplications.length + 1,
+                        position: "DevOps Engineer",
+                        company: "TechInnovate",
+                        status: "Applied",
+                        appliedDate: new Date().toISOString().split('T')[0]
+                      };
+                      setJobApplications(prev => [newApplication, ...prev]);
+                      
+                      // Update stats
+                      setStats(prev => ({
+                        ...prev,
+                        totalApplications: prev.totalApplications + 1
+                      }));
+                    }}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors font-medium flex items-center"
+                  >
+                    Add Application
                     <ArrowRightIcon className="ml-1.5 h-4 w-4" />
                   </button>
                 </div>
 
-                {jobApplications.length > 0 ? (
+                {loading ? (
+                  <div className="text-center py-20">
+                    <div className="animate-pulse text-indigo-600">Loading applications...</div>
+                  </div>
+                ) : jobApplications.length > 0 ? (
                   <div className="space-y-6">
                     {jobApplications.map((job) => (
                       <div
@@ -668,13 +1008,25 @@ function Profile() {
                           </div>
                         </div>
                         <div className="flex items-center">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                              job.status
-                            )}`}
+                          <select 
+                            className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(job.status)} border-0 focus:ring-2 focus:ring-indigo-500 cursor-pointer`}
+                            value={job.status}
+                            onChange={(e) => {
+                              const newStatus = e.target.value;
+                              setJobApplications(prev => 
+                                prev.map(item => 
+                                  item.id === job.id 
+                                    ? {...item, status: newStatus} 
+                                    : item
+                                )
+                              );
+                            }}
                           >
-                            {job.status}
-                          </span>
+                            <option value="Applied">Applied</option>
+                            <option value="Interview">Interview</option>
+                            <option value="Offered">Offered</option>
+                            <option value="Rejected">Rejected</option>
+                          </select>
                           <button className="ml-4 px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 transition-colors">
                             View Details
                           </button>

@@ -6,7 +6,10 @@ import Home from './pages/Home';
 import Challenges from './pages/Challenges';
 import Companies from './pages/Companies';
 import Profile from './pages/Profile';
+import Demo from './pages/Demo';
 import NotificationsPanel from './components/NotificationsPanel';
+import FindJob from './pages/findJob';
+import PostJob from './pages/postJob';
 
 function App() {
   return (
@@ -19,7 +22,14 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/challenges" element={<Challenges />} />
               <Route path="/companies" element={<Companies />} />
+              <Route path="/findjobs" element={<FindJob />} />
+              <Route path="/postjob" element={<PostJob />} />
+              <Route path="/companies/register" element={<Companies />} />
+              <Route path="/companies/:action" element={<Companies />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/create" element={<Profile />} />
+              <Route path="/profile/:action" element={<Profile />} />
+              <Route path="/demo" element={<Demo />} />
             </Routes>
           </main>
           <NotificationsPanel />

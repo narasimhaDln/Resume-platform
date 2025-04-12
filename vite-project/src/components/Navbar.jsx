@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { supabase } from "../lib/supabase";
+import { supabase } from "../utils/supabaseClient";
 import { Transition } from "@headlessui/react";
 import {
   UserCircleIcon,
@@ -14,6 +14,7 @@ function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const profileRef = useRef(null);
 
   // Handle scrolling effect
   useEffect(() => {
@@ -33,7 +34,7 @@ function Navbar() {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (isProfileOpen) {
+      if (profileRef.current && !profileRef.current.contains(event.target) && isProfileOpen) {
         setIsProfileOpen(false);
       }
     };
@@ -73,13 +74,27 @@ function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <Link
+              to="/findjobs"
+              className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 
+                ${isActive("/findjobs") ? "text-indigo-600" : "text-gray-600 hover:text-indigo-600"}`}
+            >
+              Find Jobs
+              {isActive("/findjobs") && (
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600"></span>
+              )}
+            </Link>
+
+            <Link
+              to="/postjob"
+              className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors duration-200"
+            >
+              Post Job
+            </Link>
+
+            <Link
               to="/challenges"
               className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 
-                ${
-                  isActive("/challenges")
-                    ? "text-indigo-600"
-                    : "text-gray-600 hover:text-indigo-600"
-                }`}
+                ${isActive("/challenges") ? "text-indigo-600" : "text-gray-600 hover:text-indigo-600"}`}
             >
               Challenges
               {isActive("/challenges") && (
@@ -90,11 +105,7 @@ function Navbar() {
             <Link
               to="/companies"
               className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 
-                ${
-                  isActive("/companies")
-                    ? "text-indigo-600"
-                    : "text-gray-600 hover:text-indigo-600"
-                }`}
+                ${isActive("/companies") ? "text-indigo-600" : "text-gray-600 hover:text-indigo-600"}`}
             >
               Companies
               {isActive("/companies") && (
@@ -102,7 +113,7 @@ function Navbar() {
               )}
             </Link>
 
-            <div className="relative">
+            <div className="relative" ref={profileRef}>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -168,6 +179,26 @@ function Navbar() {
         >
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+              <Link
+                to="/findjobs"
+                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                  isActive("/findjobs")
+                    ? "bg-indigo-50 text-indigo-600"
+                    : "text-gray-600 hover:text-indigo-600 hover:bg-indigo-50"
+                } transition-colors duration-200`}
+              >
+                Find Jobs
+              </Link>
+              <Link
+                to="/postjob"
+                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                  isActive("/postjob")
+                    ? "bg-indigo-50 text-indigo-600"
+                    : "text-indigo-600 hover:bg-indigo-700 hover:text-white"
+                } transition-colors duration-200 ${isActive("/postjob") ? "" : "bg-indigo-50"}`}
+              >
+                Post Job
+              </Link>
               <Link
                 to="/challenges"
                 className={`block px-3 py-2 rounded-md text-base font-medium ${

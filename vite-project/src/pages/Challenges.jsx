@@ -386,7 +386,7 @@ function Challenges() {
       toast.success('Challenge started!', { id: 'start-challenge' });
       
       // In a real app, redirect to the challenge page
-      console.log(`Starting challenge ${challengeId}`);
+    console.log(`Starting challenge ${challengeId}`);
       
       // Reset active challenge after delay
       setTimeout(() => setActiveChallenge(null), 1000);
@@ -475,11 +475,11 @@ function Challenges() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div className="lg:max-w-lg">
             <div className="flex items-center">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  Skill Challenges
-                </span>
-              </h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Skill Challenges
+              </span>
+            </h1>
               {loading && (
                 <span className="ml-3 inline-flex h-5 w-5 animate-pulse-slow rounded-full bg-indigo-400"></span>
               )}
@@ -734,26 +734,26 @@ function Challenges() {
               )}
               
               {/* Map filtered challenges to cards */}
-              {filteredChallenges.map((challenge, index) => (
-                <div
-                  key={challenge.id}
+          {filteredChallenges.map((challenge, index) => (
+            <div
+              key={challenge.id}
                   className={`bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 transform opacity-100 translate-y-0 hover:-translate-y-1 ${challenge.status === 'in_progress' ? 'ring-2 ring-indigo-500' : ''}`}
                   style={{ transitionDelay: `${index * 50}ms` }}
                 >
                   <div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-t-lg"></div>
-                  <div className="p-6">
+              <div className="p-6">
                     <div className="flex justify-between items-start mb-3">
                       <h2 className="text-xl font-semibold text-gray-900 line-clamp-2">
-                        {challenge.title}
-                      </h2>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${getDifficultyColor(
-                          challenge.difficulty
-                        )}`}
-                      >
-                        {challenge.difficulty}
-                      </span>
-                    </div>
+                    {challenge.title}
+                  </h2>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${getDifficultyColor(
+                      challenge.difficulty
+                    )}`}
+                  >
+                    {challenge.difficulty}
+                  </span>
+                </div>
                     
                     {challenge.last_update && (
                       <div className="mb-2 text-xs text-gray-500 flex items-center">
@@ -765,37 +765,37 @@ function Challenges() {
                       </div>
                     )}
                     
-                    <p className="text-gray-600 mb-4 line-clamp-3">
-                      {challenge.description}
-                    </p>
+                <p className="text-gray-600 mb-4 line-clamp-3">
+                  {challenge.description}
+                </p>
 
-                    <div className="mb-4">
-                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Skills Tested
-                      </span>
-                      <div className="mt-2 flex flex-wrap gap-2">
+                <div className="mb-4">
+                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Skills Tested
+                  </span>
+                  <div className="mt-2 flex flex-wrap gap-2">
                         {challenge.skills?.map((skill) => (
-                          <span
-                            key={skill}
-                            className="px-2 py-1 bg-indigo-50 text-indigo-700 text-xs rounded-md font-medium"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                      <span
+                        key={skill}
+                        className="px-2 py-1 bg-indigo-50 text-indigo-700 text-xs rounded-md font-medium"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
 
                     <div className="flex flex-wrap items-center space-x-4 text-sm text-gray-500 mb-4">
-                      <div className="flex items-center">
-                        <ClockIcon className="h-4 w-4 mr-1" />
+                  <div className="flex items-center">
+                    <ClockIcon className="h-4 w-4 mr-1" />
                         <span>{challenge.duration || "2 hours"}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <CalendarIcon className="h-4 w-4 mr-1" />
-                        <span>
-                          {format(new Date(challenge.created_at), "MMM d, yyyy")}
-                        </span>
-                      </div>
+                  </div>
+                  <div className="flex items-center">
+                    <CalendarIcon className="h-4 w-4 mr-1" />
+                    <span>
+                      {format(new Date(challenge.created_at), "MMM d, yyyy")}
+                    </span>
+                  </div>
                       
                       {challenge.participants && (
                         <div className="flex items-center mt-2 w-full">
@@ -806,17 +806,17 @@ function Challenges() {
                         </div>
                       )}
                       
-                      <div className="flex items-center mt-2 w-full">
-                        <span className="text-xs font-medium text-gray-500">
-                          By {challenge.company}
-                        </span>
-                      </div>
-                    </div>
+                  <div className="flex items-center mt-2 w-full">
+                    <span className="text-xs font-medium text-gray-500">
+                      By {challenge.company}
+                    </span>
+                  </div>
+                </div>
 
                     {/* Action buttons */}
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => startChallenge(challenge.id)}
+                <button
+                  onClick={() => startChallenge(challenge.id)}
                         disabled={activeChallenge === challenge.id}
                         className={`flex-1 flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition-all duration-200 ${
                           activeChallenge === challenge.id
@@ -831,8 +831,8 @@ function Challenges() {
                           </svg>
                         ) : (
                           <>
-                            Start Challenge
-                            <ArrowRightIcon className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  Start Challenge
+                  <ArrowRightIcon className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                           </>
                         )}
                       </button>
@@ -851,11 +851,11 @@ function Challenges() {
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                         </svg>
-                      </button>
+                </button>
                     </div>
-                  </div>
-                </div>
-              ))}
+              </div>
+            </div>
+          ))}
             </>
           ) : (
             <div className="col-span-full text-center py-12">
@@ -863,25 +863,25 @@ function Challenges() {
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-              </div>
+        </div>
               <h3 className="mt-2 text-lg font-medium text-gray-900">No challenges found</h3>
               <p className="mt-1 text-gray-500">Try adjusting your search or filter criteria.</p>
               <div className="mt-6">
-                <button
-                  onClick={() => {
-                    setFilter("all");
-                    setTypeFilter("all");
-                    setSearchQuery("");
+            <button
+              onClick={() => {
+                setFilter("all");
+                setTypeFilter("all");
+                setSearchQuery("");
                     setInitialRender(true);
                     setTimeout(() => setInitialRender(false), 100);
-                  }}
+              }}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
+            >
                   Reset and show all
-                </button>
+            </button>
               </div>
-            </div>
-          )}
+          </div>
+        )}
         </div>
       </div>
     </div>
